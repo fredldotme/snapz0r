@@ -88,6 +88,7 @@ void FeatureManager::run()
 
     m_commandRunner->rm("/mnt");
     m_commandRunner->sudo(QStringList{"/usr/bin/mkdir", "/mnt"}, true);
+    m_commandRunner->sudo(QStringList{"/usr/bin/mkdir", "/root/snap"}, true);
 
     m_commandRunner->sudo(QStringList{"/usr/bin/mount", "-o", "remount,ro", "/"}, true);
 
