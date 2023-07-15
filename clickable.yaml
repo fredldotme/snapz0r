@@ -1,0 +1,4 @@
+clickable_minimum_required: 7.1.2
+builder: cmake
+kill: snapz0r
+framework: ubuntu-sdk-20.04

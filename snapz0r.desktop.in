@@ -1,0 +1,7 @@
+[Desktop Entry]
+_Name=Snapz0r
+Exec=snapz0r %U
+Icon=assets/logo.png
+Terminal=false
+Type=Application
+X-Lomiri-Touch=true
