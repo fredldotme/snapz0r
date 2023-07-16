@@ -80,7 +80,6 @@ MainView {
             Button {
                 text: qsTr("Ok")
                 color: theme.palette.normal.positive
-
                 enabled: !enterDelayTimer.running
                 onClicked: {
                     if (CommandRunner.validatePassword()) {
@@ -102,11 +101,53 @@ MainView {
         }
     }
 
+
+    Component {
+        id: infoDialog
+
+        Dialog {
+            id: infoDialogue
+            title: qsTr("About Snapz0r")
+            text: qsTr("Snapz0r enables preliminary support for Snaps on Ubuntu Touch 20.04.") + "\n\n" +
+                  qsTr("For proper support make sure to ask your device's maintainer to enable the following kernel defconfig switches:") + "\n\n" +
+                  qsTr("CONFIG_SQUASHFS=y") + "\n" +
+                  qsTr("CONFIG_SQUASHFS_XZ=y") + "\n" +
+                  qsTr("CONFIG_SQUASHFS_LZO=y") + "\n" +
+                  qsTr("CONFIG_SQUASHFS_LZ4=y")
+
+            Connections {
+                target: CommandRunner
+                onPasswordRequested: {
+                    CommandRunner.providePassword(entry.text)
+                }
+            }
+
+            Button {
+                text: qsTr("Ok")
+                onClicked: {
+                    PopupUtils.close(infoDialogue)
+                }
+            }
+        }
+    }
+
     Page {
         id: mainPage
         header: PageHeader {
             id: header
             title: i18n.tr("Snapz0r")
+            trailingActionBar {
+                actions: [
+                    Action {
+                        iconName: "info"
+                        text: i18n.tr("Info")
+                        onTriggered: {
+                            PopupUtils.open(infoDialog)
+                        }
+                    }
+                ]
+                numberOfSlots: 1
+            }
         }
 
         Column {
