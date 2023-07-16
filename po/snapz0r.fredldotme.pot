@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: snapz0r.fredldotme\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-07-15 23:39+0000\n"
+"POT-Creation-Date: 2023-07-16 00:03+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,10 +17,14 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: ../qml/Main.qml:109 snapz0r.desktop.in.h:1
+#: ../qml/Main.qml:138 snapz0r.desktop.in.h:1
 msgid "Snapz0r"
 msgstr ""
 
-#: ../qml/Main.qml:141
+#: ../qml/Main.qml:143
+msgid "Info"
+msgstr ""
+
+#: ../qml/Main.qml:182
 msgid "Enable Snaps"
 msgstr ""
