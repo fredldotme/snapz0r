@@ -21,7 +21,8 @@ import Lomiri.Components.Themes 1.3
 import QtQuick.Layouts 1.3
 import QtQuick.Window 2.12
 import QtQuick.Controls 2.0 as QQC2
-import Example 1.0
+import Snapd 1.0
+import Snapz0r 1.0
 
 MainView {
     id: root
@@ -35,18 +36,34 @@ MainView {
 
     Component.onCompleted: {
         FeatureManager.commandRunner = CommandRunner;
-        PopupUtils.open(dialog);
+        recheckSupport()
+        snapClient.setUserAgent("Snapz0r-Ubuntu-Touch")
     }
 
     property bool checked : false
     property bool supported : false
     property bool featureEnabled : false
     property bool installing : false
+    property string password : ""
 
     function recheckSupport() {
         supported = FeatureManager.recheckSupport();
         featureEnabled = FeatureManager.enabled();
         checked = true;
+    }
+
+    Component {
+        id: storeComponent
+        Store {
+            id: store
+        }
+    }
+
+    Component {
+        id: enablementComponent
+        Enablement {
+            id: enablement
+        }
     }
 
     Component {
@@ -57,10 +74,13 @@ MainView {
             title: qsTr("Authentication required")
             text: qsTr("Please enter your user PIN or password to continue:")
 
-            Connections {
-                target: CommandRunner
-                onPasswordRequested: {
-                    CommandRunner.providePassword(entry.text)
+            function testPassword() {
+                root.password = entry.text
+                if (CommandRunner.validatePassword()) {
+                    PopupUtils.close(dialogue)
+                    recheckSupport();
+                } else {
+                    enterDelayTimer.start()
                 }
             }
 
@@ -76,139 +96,66 @@ MainView {
                 echoMode: TextInput.Password
                 focus: true
                 enabled: !enterDelayTimer.running
+                onAccepted: dialogue.testPassword()
             }
             Button {
                 text: qsTr("Ok")
                 color: theme.palette.normal.positive
                 enabled: !enterDelayTimer.running
-                onClicked: {
-                    if (CommandRunner.validatePassword()) {
-                        PopupUtils.close(dialogue)
-                        recheckSupport();
-                    } else {
-                        enterDelayTimer.start()
-                    }
-                }
+                onClicked: dialogue.testPassword()
             }
             Button {
                 text: qsTr("Cancel")
                 enabled: !enterDelayTimer.running
                 onClicked: {
-                    PopupUtils.close(dialogue)
                     Qt.quit()
                 }
             }
         }
     }
 
-
-    Component {
-        id: infoDialog
-
-        Dialog {
-            id: infoDialogue
-            title: qsTr("About Snapz0r")
-            text: qsTr("Snapz0r enables preliminary support for Snaps on Ubuntu Touch 20.04.") + "\n\n" +
-                  qsTr("For proper support make sure to ask your device's maintainer to enable the following kernel defconfig switches:") + "\n\n" +
-                  qsTr("CONFIG_SQUASHFS=y") + "\n" +
-                  qsTr("CONFIG_SQUASHFS_XZ=y") + "\n" +
-                  qsTr("CONFIG_SQUASHFS_LZO=y") + "\n" +
-                  qsTr("CONFIG_SQUASHFS_LZ4=y")
-
-            Connections {
-                target: CommandRunner
-                onPasswordRequested: {
-                    CommandRunner.providePassword(entry.text)
-                }
-            }
-
-            Button {
-                text: qsTr("Ok")
-                onClicked: {
-                    PopupUtils.close(infoDialogue)
-                }
-            }
+    onCheckedChanged: {
+        if (featureEnabled) {
+            mainLayout.primaryPage = storeComponent.createObject(mainLayout)
+        } else {
+            mainLayout.primaryPage = enablementComponent.createObject(mainLayout)
         }
     }
 
-    Page {
-        id: mainPage
-        header: PageHeader {
-            id: header
-            title: i18n.tr("Snapz0r")
-            trailingActionBar {
-                actions: [
-                    Action {
-                        iconName: "info"
-                        text: i18n.tr("Info")
-                        onTriggered: {
-                            PopupUtils.open(infoDialog)
-                        }
-                    }
-                ]
-                numberOfSlots: 1
-            }
+    SnapdClient {
+        id: snapClient
+    }
+
+    Connections {
+        target: CommandRunner
+        onPasswordRequested: {
+            CommandRunner.providePassword(password)
         }
+    }
 
-        Column {
-            visible: root.checked && !root.installing
-            anchors.horizontalCenter: parent.horizontalCenter
-            anchors.verticalCenter: parent.verticalCenter
-            spacing: units.gu(1)
-
-            Icon {
-                width: Math.min(root.width, root.height) / 2
-                anchors.horizontalCenter: parent.horizontalCenter
-                height: width
-                name: root.featureEnabled ? "tick" : "close"
-            }
-            Label {
-                width: Math.min(root.width, root.height) / 2
-                anchors.horizontalCenter: parent.horizontalCenter
-                horizontalAlignment: Text.AlignHCenter
-                text: "Kernel support: " + (root.supported ?
-                                                "Available" :
-                                                "Partial")
-                wrapMode: Text.WordWrap
-            }
-            Item {
-                height: units.gu(4)
-            }
-            Row {
-                spacing: units.gu(1)
-                enabled: !root.featureEnabled
-                anchors.horizontalCenter: parent.horizontalCenter
-                Button {
-                    text: i18n.tr("Enable Snaps")
-                    onClicked: {
-                        root.installing = true
-                        FeatureManager.enable()
-                    }
+    AdaptivePageLayout {
+        id: mainLayout
+        anchors.fill: parent
+        layouts: [
+            PageColumnsLayout {
+                when: root.width > root.height
+                PageColumn {
+                    preferredWidth: units.gu(40)
+                }
+                PageColumn {
+                    fillWidth: true
+                }
+            },
+            PageColumnsLayout {
+                when: root.width < root.height
+                PageColumn {
+                    fillWidth: true
                 }
             }
-        }
-
-        Column {
-            visible: root.checked && root.installing
-            anchors.horizontalCenter: parent.horizontalCenter
-            anchors.verticalCenter: parent.verticalCenter
-            spacing: units.gu(1)
-
-            QQC2.BusyIndicator {
-                width: Math.min(root.width, root.height) / 2
-                anchors.horizontalCenter: parent.horizontalCenter
-                height: width
-                running: root.installing
-            }
-            Label {
-                width: Math.min(root.width, root.height) / 2
-                anchors.horizontalCenter: parent.horizontalCenter
-                horizontalAlignment: Text.AlignHCenter
-                text: "Installing... Please keep this app running up and running until completed. The device will reboot by itself."
-                wrapMode: Text.WordWrap
-            }
-            Item {
-                height: units.gu(4)
+        ]
+        primaryPage: Page {
+            header: PageHeader {
+                title: i18n.tr("Checking functionality...")
             }
         }
     }

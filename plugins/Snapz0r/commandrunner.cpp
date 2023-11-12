@@ -21,6 +21,24 @@ CommandRunner::CommandRunner(QObject *parent) :
     });
 }
 
+int CommandRunner::shell(const QStringList &command, const bool waitForCompletion, QByteArray* output)
+{
+    QStringList cmd = QStringList{"-c", command.join(" ")};
+
+    this->m_process->start("bash", cmd, QProcess::ReadWrite);
+    if (waitForCompletion) {
+        this->m_process->waitForFinished();
+        if (output) {
+            *output = this->m_process->readAllStandardOutput();
+        }
+        qDebug() << this->m_process->exitCode();
+        const int ret = this->m_process->exitCode();
+        this->m_process->kill();
+        return ret;
+    }
+    return -1;
+}
+
 int CommandRunner::sudo(const QStringList &command, const bool waitForCompletion, QByteArray* output)
 {
     QStringList cmd = QStringList{"-S", "-p", "userpasswd"} + command;
@@ -38,6 +56,11 @@ int CommandRunner::sudo(const QStringList &command, const bool waitForCompletion
         return ret;
     }
     return -1;
+}
+
+bool CommandRunner::sudo(const QStringList &command)
+{
+    return sudo(command, true, nullptr);
 }
 
 QByteArray CommandRunner::readFile(const QString &absolutePath)
@@ -86,4 +109,10 @@ bool CommandRunner::validatePassword()
     this->m_process->waitForFinished();
     const QByteArray output = this->m_process->readAllStandardOutput();
     return (output.trimmed() == "0");
+}
+
+void CommandRunner::cancel()
+{
+    m_process->kill();
+    m_process->waitForFinished();
 }

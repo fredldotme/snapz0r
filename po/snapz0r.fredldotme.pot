@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: snapz0r.fredldotme\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-07-16 00:03+0000\n"
+"POT-Creation-Date: 2023-11-12 13:51+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,14 +17,58 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: ../qml/Main.qml:138 snapz0r.desktop.in.h:1
+#: ../qml/Enablement.qml:13 ../qml/Store.qml:18 snapz0r.desktop.in.h:1
 msgid "Snapz0r"
 msgstr ""
 
-#: ../qml/Main.qml:143
+#: ../qml/Enablement.qml:23
 msgid "Info"
 msgstr ""
 
-#: ../qml/Main.qml:182
+#: ../qml/Enablement.qml:84
 msgid "Enable Snaps"
+msgstr ""
+
+#: ../qml/LoginDialog.qml:16
+msgid "Ubuntu One E-Mail address"
+msgstr ""
+
+#: ../qml/LoginDialog.qml:22
+msgid "Password"
+msgstr ""
+
+#: ../qml/LoginDialog.qml:25
+msgid "Login"
+msgstr ""
+
+#: ../qml/LoginDialog.qml:32
+msgid "Cancel"
+msgstr ""
+
+#: ../qml/Main.qml:158
+msgid "Checking functionality..."
+msgstr ""
+
+#: ../qml/Store.qml:29 ../qml/Store.qml:113
+msgid "Search"
+msgstr ""
+
+#: ../qml/Store.qml:106
+msgid "Search for snaps:"
+msgstr ""
+
+#: ../qml/Store.qml:177
+msgid "No Snaps installed yet"
+msgstr ""
+
+#: ../qml/Store.qml:196
+msgid "Details for %1"
+msgstr ""
+
+#: ../qml/Store.qml:212
+msgid "Install"
+msgstr ""
+
+#: ../qml/Store.qml:212
+msgid "Remove"
 msgstr ""

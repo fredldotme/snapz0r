@@ -37,10 +37,10 @@ FeatureManager::FeatureManager()
 bool FeatureManager::recheckSupport()
 {
     QByteArray output;
-    m_commandRunner->sudo(QStringList{"/usr/bin/zcat", "/proc/config.gz"}, true, &output);
+    m_commandRunner->shell(QStringList{"/usr/bin/zcat", "/proc/config.gz"}, true, &output);
 
     m_supported = output.contains("CONFIG_SQUASHFS") && output.contains("CONFIG_SQUASHFS_XZ") &&
-                  output.contains("CONFIG_SQUASHFS_LZ4") && output.contains("CONFIG_SQUASHFS_LZO");
+                  output.contains("CONFIG_SQUASHFS_LZO");
 
     return m_supported;
 }
@@ -48,7 +48,7 @@ bool FeatureManager::recheckSupport()
 bool FeatureManager::enabled()
 {
     m_enabled =
-            (m_commandRunner->sudo(QStringList{"/usr/bin/test", "-f", "/usr/bin/snap"}, true) == 0);
+            (m_commandRunner->shell(QStringList{"/usr/bin/test", "-f", "/usr/bin/snap"}, true) == 0);
     return m_enabled;
 }
 
@@ -59,39 +59,25 @@ bool FeatureManager::enable()
     return true;
 }
 
-bool FeatureManager::disable()
-{
-    return false;
-}
-
 void FeatureManager::run()
 {
-    const QByteArray prefContents = QByteArrayLiteral("Package: *\nPin: release o=UBports,a=focal_-_snapd\nPin-Priority: 3001");
-    const QByteArray repoContents = QByteArrayLiteral("deb http://repo.ubports.com/ focal_-_snapd main");
-
     m_commandRunner->sudo(QStringList{"/usr/bin/mount", "-o", "remount,rw", "/"}, true);
 
-    m_commandRunner->writeFile("/etc/apt/preferences.d/ubports-focal_-_snapd.pref", prefContents);
-    m_commandRunner->writeFile("/etc/apt/sources.list.d/ubports-focal_-_snapd.list", repoContents);
+    // Temporary storage for apt
+    m_commandRunner->sudo(QStringList{"/usr/bin/mkdir", "/tmp/apt"}, true);
+    m_commandRunner->sudo(QStringList{"/usr/bin/mount", "-o", "bind", "/tmp/apt", "/var/cache/apt"}, true);
 
-    m_commandRunner->sudo(QStringList{"/usr/bin/apt", "update"}, true);
-
-    // These may or may not fail
-    m_commandRunner->sudo(QStringList{"/usr/bin/umount", "/usr/libexec/lxc-android-config/device-hacks"}, true);
+    // Port-dependent, these may or may not fail
     m_commandRunner->sudo(QStringList{"/usr/bin/umount", "/etc/profile.d"}, true);
     m_commandRunner->sudo(QStringList{"/usr/bin/umount", "/usr/lib/systemd/user"}, true);
-    m_commandRunner->sudo(QStringList{"/usr/bin/umount", "/lib/udev/rules.d/70-android.rules"}, true);
-    m_commandRunner->sudo(QStringList{"/usr/bin/umount", "/lib/udev/rules.d/99-android.rules"}, true);
+    m_commandRunner->sudo(QStringList{"/usr/bin/umount", "/usr/lib/systemd/system"}, true);
 
-    m_commandRunner->sudo(QStringList{"/usr/bin/apt", "install", "-y", "lxc-android-config"}, true);
-    m_commandRunner->sudo(QStringList{"/usr/bin/apt", "install", "-y", "snapd"}, true);
-
-    m_commandRunner->rm("/mnt");
-    m_commandRunner->sudo(QStringList{"/usr/bin/mkdir", "/mnt"}, true);
-    m_commandRunner->sudo(QStringList{"/usr/bin/mkdir", "/root/snap"}, true);
+    // Do the thing
+    m_commandRunner->sudo(QStringList{"/usr/bin/apt", "update"}, true);
+    m_commandRunner->sudo(QStringList{"/usr/bin/env", "DEBIAN_FRONTEND=noninteractive", "/usr/bin/apt", "install", "--no-install-recommends", "-y", "snapd", "lomiri-polkit-agent"}, true);
 
     m_commandRunner->sudo(QStringList{"/usr/bin/mount", "-o", "remount,ro", "/"}, true);
 
     m_commandRunner->sudo(QStringList{"/usr/bin/sync"}, true);
-    m_commandRunner->sudo(QStringList{"/usr/sbin/reboot"}, true);
+    m_commandRunner->sudo(QStringList{"/usr/sbin/reboot", "-f"}, true);
 }

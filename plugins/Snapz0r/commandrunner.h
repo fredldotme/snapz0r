@@ -11,12 +11,15 @@ class CommandRunner : public QObject
 public:
     explicit CommandRunner(QObject *parent = nullptr);
 
-    int sudo(const QStringList& command, const bool waitForCompletion = false, QByteArray* output = nullptr);
+    int shell(const QStringList& command, const bool waitForCompletion, QByteArray* output = nullptr);
+    int sudo(const QStringList& command, const bool waitForCompletion, QByteArray* output = nullptr);
     QByteArray readFile(const QString& absolutePath);
     bool writeFile(const QString& absolutePath, const QByteArray& value);
     bool rm(const QString& path);
 
 public slots:
+    bool sudo(const QStringList& command);
+    void cancel();
     bool validatePassword();
     void providePassword(const QString& password);
 

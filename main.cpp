@@ -19,6 +19,7 @@
 #include <QUrl>
 #include <QString>
 #include <QQuickView>
+#include <QQmlEngine>
 
 int main(int argc, char *argv[])
 {
@@ -31,6 +32,9 @@ int main(int argc, char *argv[])
     view->setSource(QUrl("qrc:/Main.qml"));
     view->setResizeMode(QQuickView::SizeRootObjectToView);
     view->show();
+    QObject::connect(view->engine(), &QQmlEngine::quit, [app]{
+        app->quit();
+    });
 
     return app->exec();
 }

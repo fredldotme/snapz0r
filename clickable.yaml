@@ -2,3 +2,9 @@ clickable_minimum_required: 7.1.2
 builder: cmake
 kill: snapz0r
 framework: ubuntu-sdk-20.04
+dependencies_target:
+- qml-module-snapd
+install_qml:
+- /usr/lib/${ARCH_TRIPLET}/qt5/qml/Snapd
+install_lib:
+- /usr/lib/${ARCH_TRIPLET}/libsnapd-qt*.so*
