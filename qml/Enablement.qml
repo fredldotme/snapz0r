@@ -108,6 +108,7 @@ Page {
             horizontalAlignment: Text.AlignHCenter
             text: "Installing... Please keep this app up and running until completed. The device will reboot by itself."
             wrapMode: Text.WordWrap
+            color: LomiriColors.slate
         }
         Item {
             height: units.gu(4)

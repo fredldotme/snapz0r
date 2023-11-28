@@ -115,10 +115,14 @@ MainView {
     }
 
     onCheckedChanged: {
+        if (!checked)
+            return;
+
         if (featureEnabled) {
             mainLayout.primaryPage = storeComponent.createObject(mainLayout)
         } else {
             mainLayout.primaryPage = enablementComponent.createObject(mainLayout)
+            PopupUtils.open(dialog)
         }
     }
 

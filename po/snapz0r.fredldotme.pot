@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: snapz0r.fredldotme\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-11-12 13:51+0000\n"
+"POT-Creation-Date: 2023-11-28 21:49+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: ../qml/Enablement.qml:13 ../qml/Store.qml:18 snapz0r.desktop.in.h:1
+#: ../qml/Enablement.qml:13 ../qml/Store.qml:20 snapz0r.desktop.in.h:1
 msgid "Snapz0r"
 msgstr ""
 
@@ -45,30 +45,38 @@ msgstr ""
 msgid "Cancel"
 msgstr ""
 
-#: ../qml/Main.qml:158
+#: ../qml/Main.qml:162
 msgid "Checking functionality..."
 msgstr ""
 
-#: ../qml/Store.qml:29 ../qml/Store.qml:113
+#: ../qml/Store.qml:31 ../qml/Store.qml:156
 msgid "Search"
 msgstr ""
 
-#: ../qml/Store.qml:106
+#: ../qml/Store.qml:149
 msgid "Search for snaps:"
 msgstr ""
 
-#: ../qml/Store.qml:177
+#: ../qml/Store.qml:220
 msgid "No Snaps installed yet"
 msgstr ""
 
-#: ../qml/Store.qml:196
+#: ../qml/Store.qml:259
 msgid "Details for %1"
 msgstr ""
 
-#: ../qml/Store.qml:212
+#: ../qml/Store.qml:275
 msgid "Install"
 msgstr ""
 
-#: ../qml/Store.qml:212
+#: ../qml/Store.qml:275
 msgid "Remove"
+msgstr ""
+
+#: ../qml/Store.qml:296
+msgid "Website"
+msgstr ""
+
+#: ../qml/Store.qml:304
+msgid "Store Website"
 msgstr ""

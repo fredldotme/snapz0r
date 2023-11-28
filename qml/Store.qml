@@ -1,17 +1,19 @@
 import QtQuick 2.7
-import QtQuick.Controls 2.12
+import QtQuick.Controls 2.12 as QQC2
 import QtQuick.Layouts 1.12
 import Lomiri.Components 1.3
 import Lomiri.Components.Popups 1.3
 import Lomiri.Components.Themes 1.3
 import QtQml.Models 2.12
+import Snapd 1.0
 import Snapz0r 1.0
 
 Page {
     id: storePage
 
     property bool refreshing : false
-    property bool inProgress : false
+    property var globalRequest : null
+    readonly property bool inProgress : (globalRequest !== null) || refreshing
 
     header: PageHeader {
         id: header
@@ -30,9 +32,24 @@ Page {
                     onTriggered: {
                         searchContextArea.visibility = !searchContextArea.visibility
                     }
-                }
+                }/*,
+                Action {
+                    iconName: "history"
+                    text: i18n.tr("Changes")
+                    onTriggered: {
+                        PopupUtils.open(popoverComponent, installedAppsList)
+                    }
+                }*/
             ]
             numberOfSlots: 1
+        }
+
+        QQC2.BusyIndicator {
+            height: header.height / 2
+            width: height
+            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.verticalCenter: parent.verticalCenter
+            running: storePage.inProgress
         }
     }
 
@@ -49,6 +66,7 @@ Page {
             installedAppsList.model.append(snap)
         }
         refreshing = false;
+        request = null;
     }
 
     Component.onCompleted: {
@@ -66,6 +84,26 @@ Page {
         }
     }
 
+    Component {
+        id: popoverComponent
+
+        Popover {
+            id: popover
+            Column {
+                id: containerLayout
+                anchors {
+                    left: parent.left
+                    top: parent.top
+                    right: parent.right
+                }
+
+                Component.onCompleted: {
+
+                }
+            }
+        }
+    }
+
     RowLayout {
         id: searchContextArea
         anchors {
@@ -78,6 +116,11 @@ Page {
         opacity: visibility ? 1.0 : 0.0
         visible: height > 0
         clip: true
+
+        onVisibilityChanged: {
+            if (!visibility)
+                refreshSnapList()
+        }
 
         function startSearch() {
             installedAppsList.model.clear();
@@ -146,7 +189,7 @@ Page {
                         width: height
                         fillMode: Image.PreserveAspectFit
                     }
-                    Text {
+                    Label {
                         text: entryRoot.snap.name
                         verticalAlignment: Text.AlignVCenter
                         height: parent.height
@@ -185,6 +228,26 @@ Page {
         Page {
             id: snapDetailsPage
             property var snap: null
+            property var snapMedia : {
+                if (!snap)
+                    return [];
+
+                let ret = []
+                for (let i = 0; i < 5; i++) {
+                    try {
+                        console.log("MEDIUM: " + snapDetailsPage.snap.media(i).url)
+                        ret.push({
+                                     "url": snapDetailsPage.snap.media(i).url,
+                                     "width": snapDetailsPage.snap.media(i).width,
+                                     "height": snapDetailsPage.snap.media(i).height
+                                 })
+                    } catch (e) {
+                        console.log(e)
+                    }
+                }
+                return ret;
+            }
+
             property bool installed : !isNaN(snapDetailsPage.snap.installDate)
 
             Component.onCompleted: {
@@ -210,34 +273,49 @@ Page {
                     Action {
                         iconName: snapDetailsPage.installed ? "delete" : "save"
                         text: snapDetailsPage.installed ? i18n.tr("Remove") : i18n.tr("Install")
+                        enabled: globalRequest === null
 
                         onTriggered: {
                             if (installed) {
-                                let request = snapClient.remove(snapDetailsPage.snap.name);
-                                request.complete.connect(function(){
-                                    refreshSnapList();
-                                    snapDetailsPage.installed = !isNaN(snapDetailsPage.snap.installDate)
-                                    storePage.inProgress = false
-                                });
-                                request.progress.connect(function(){
-                                    storePage.inProgress = true
-                                });
-                                request.runAsync()
+                                globalRequest = snapClient.remove(snapDetailsPage.snap.name);
                                 mainLayout.removePages(snapDetailsPage);
                             } else {
-                                let request = snapClient.install(snapDetailsPage.snap.name);
-                                request.complete.connect(function(){
-                                    refreshSnapList();
-                                    snapDetailsPage.installed = !isNaN(snapDetailsPage.snap.installDate)
-                                    storePage.inProgress = false
-                                });
-                                request.progress.connect(function(){
-                                    storePage.inProgress = true
-                                });
-                                request.runAsync()
+                                globalRequest = snapClient.install(snapDetailsPage.snap.name);
                             }
+
+                            globalRequest.complete.connect(function(){
+                                refreshSnapList();
+                                globalRequest = null
+                                snapDetailsPage.installed = !isNaN(snapDetailsPage.snap.installDate)
+                            });
+                            globalRequest.runAsync()
+                        }
+                    },
+                    Action {
+                        iconName: "external-link"
+                        text: i18n.tr("Website")
+                        enabled: snapDetailsPage.snap !== null
+                        onTriggered: {
+                            Qt.openUrlExternally(snapDetailsPage.snap.website)
+                        }
+                    },
+                    Action {
+                        iconName: "ubuntu-store-symbolic"
+                        text: i18n.tr("Store Website")
+                        enabled: snapDetailsPage.snap !== null
+                        onTriggered: {
+                            Qt.openUrlExternally("https://snapcraft.io/" + snapDetailsPage.snap.name)
                         }
                     }
+
+                        /*,
+                    Action {
+                        iconName: "history"
+                        text: i18n.tr("Changes")
+                        onTriggered: {
+                            PopupUtils.open(popoverComponent, installedAppsList)
+                        }
+                    }*/
                 ]
             }
 
@@ -248,11 +326,18 @@ Page {
                     right: parent.right
                     bottom: parent.bottom
                 }
+                spacing: units.gu(2)
+
+                ProgressBar {
+                    indeterminate: storePage.inProgress
+                    visible: storePage.inProgress
+                    width: parent.width
+                }
 
                 Row {
                     id: detailsHeader
                     width: parent.width
-                    spacing: units.gu(1)
+                    spacing: units.gu(0.5)
 
                     Image {
                         id: snapIcon
@@ -264,27 +349,94 @@ Page {
                     Column {
                         width: parent.width - snapIcon.width
                         height: snapIcon.height
-                        Text {
+                        spacing: units.gu(0.5)
+
+                        Label {
                             text: snapDetailsPage.snap.title
                             horizontalAlignment: Text.AlignHCenter
                             verticalAlignment: Text.AlignVCenter
                             width: contentWidth
                             font.pixelSize: units.gu(2)
                         }
-                        Text {
+                        Label {
                             text: qsTr("By %1").arg(snapDetailsPage.snap.developer)
                             horizontalAlignment: Text.AlignHCenter
                             verticalAlignment: Text.AlignVCenter
                             width: contentWidth
                             font.pixelSize: units.gu(1.5)
                         }
-                        Text {
+                        Label {
                             text: qsTr("License: %1").arg(snapDetailsPage.snap.license)
                             horizontalAlignment: Text.AlignHCenter
                             verticalAlignment: Text.AlignVCenter
                             width: contentWidth
                             font.pixelSize: units.gu(1.5)
                         }
+                        Label {
+                            text: qsTr("Confinement: %1").arg(confinementLevel(snapDetailsPage.snap))
+                            horizontalAlignment: Text.AlignHCenter
+                            verticalAlignment: Text.AlignVCenter
+                            width: contentWidth
+                            font.pixelSize: units.gu(1.5)
+                            color: confinementColor(snapDetailsPage.snap)
+                            function confinementLevel(snap) {
+                                switch (snap.confinement) {
+                                case SnapdSnap.SnapConfinementStrict:
+                                    return qsTr("Strict")
+                                case SnapdSnap.SnapConfinementDevmode:
+                                    return qsTr("Dev mode")
+                                case SnapdSnap.SnapConfinementClassic:
+                                    return qsTr("Classic")
+                                default:
+                                    return qsTr("Unknown!")
+                                }
+                            }
+                            function confinementColor(snap) {
+                                switch (snap.confinement) {
+                                case SnapdSnap.SnapConfinementStrict:
+                                    return theme.palette.normal.positive;
+                                case SnapdSnap.SnapConfinementDevmode:
+                                case SnapdSnap.SnapConfinementClassic:
+                                    return LomiriColors.orange;
+                                default:
+                                    return LomiriColors.red;
+                                }
+                            }
+                        }
+                        /*
+                        Button {
+                            text: qsTr("Launch")
+                            readonly property string app : {
+                                let request = snapClient.getApps(snapDetailsPage.snap.name)
+                                request.runSync()
+                                return request.app(0).name;
+                            }
+                            enabled: {
+                                let request = snapClient.getApps(snapDetailsPage.snap.name)
+                                request.runSync()
+                                return request.app(0).active;
+                            }
+
+                            onClicked: {
+                                FeatureManager.launch(snapDetailsPage.snap.name + "_" +
+                                                      snapDetailsPage.snap.app(0).name)
+                            }
+                        }
+                        */
+                    }
+                }
+                ListView {
+                    id: screenshotsList
+                    width: parent.width
+                    height: snapDetailsPage.snapMedia.length > 0 ? 256 : 0
+                    spacing: units.gu(0.2)
+                    flickableDirection: ListView.Horizontal
+                    model: snapDetailsPage.snapMedia
+                    delegate: Image {
+                        fillMode: Image.PreserveAspectFit
+                        width: modelData.width
+                        height: modelData.height
+                        source: modelData.url
                     }
                 }
 
@@ -301,6 +453,7 @@ Page {
                         width: parent.width
                         wrapMode: Label.WrapAtWordBoundaryOrAnywhere
                         font.pixelSize: units.gu(2)
+                        color: LomiriColors.slate
                     }
                 }
             }

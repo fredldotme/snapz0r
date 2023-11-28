@@ -31,6 +31,7 @@ public:
     FeatureManager();
     ~FeatureManager() = default;
 
+    Q_INVOKABLE void launch(const QString& commonId);
     Q_INVOKABLE bool recheckSupport();
     Q_INVOKABLE bool enabled();
     Q_INVOKABLE bool enable();

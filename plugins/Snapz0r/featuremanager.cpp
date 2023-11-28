@@ -45,6 +45,16 @@ bool FeatureManager::recheckSupport()
     return m_supported;
 }
 
+void FeatureManager::launch(const QString &commonId)
+{
+    const QStringList command =
+        {
+            QStringLiteral("/usr/bin/lomiri-app-launch"),
+            commonId
+        };
+    m_commandRunner->shell(command, true, nullptr);
+}
+
 bool FeatureManager::enabled()
 {
     m_enabled =
