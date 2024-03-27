@@ -2,3 +2,4 @@ build
 .clickable
 .DS_Store
 CMakeLists.txt.user
+*.deb

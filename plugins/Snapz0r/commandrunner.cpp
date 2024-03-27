@@ -79,7 +79,6 @@ bool CommandRunner::writeFile(const QString &absolutePath, const QByteArray &val
         QStringLiteral("echo '%1' | tee %2").arg(value, absolutePath)
     };
     sudo(writeCommand);
-    this->m_process->waitForFinished();
     return (this->m_process->exitCode() == 0);
 }
 
@@ -90,7 +89,6 @@ bool CommandRunner::rm(const QString& path)
         QStringLiteral("/bin/rm '%1'").arg(path)
     };
     sudo(writeCommand);
-    this->m_process->waitForFinished();
     return (this->m_process->exitCode() == 0);
 }
 

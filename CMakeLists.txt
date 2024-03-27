@@ -74,6 +74,12 @@ add_custom_target(${DESKTOP_FILE_NAME} ALL
 
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${DESKTOP_FILE_NAME} DESTINATION ${DATA_DIR})
 
+if(NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/snapd.deb)
+    message(FATAL_ERROR "Missing file: ${CMAKE_CURRENT_SOURCE_DIR}/snapd.deb")
+    message(FATAL_ERROR "Please build snapd (snapz0r branch) from https://github.com/fredldotme/snapd and place the resulting .deb there")
+endif()
+install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/snapd.deb DESTINATION ${DATA_DIR})
+
 add_subdirectory(po)
 add_subdirectory(plugins)
 
