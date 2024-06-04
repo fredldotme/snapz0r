@@ -52,6 +52,13 @@ MainView {
         checked = true;
     }
 
+    function forceReinstallSupport() {
+        checked = false;
+        supported = FeatureManager.recheckSupport();
+        featureEnabled = false;
+        checked = true;
+    }
+
     Component {
         id: storeComponent
         Store {

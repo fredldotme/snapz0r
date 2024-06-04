@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: snapz0r.fredldotme\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-03-27 14:53+0000\n"
+"POT-Creation-Date: 2024-06-04 16:50+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -25,7 +25,7 @@ msgstr ""
 msgid "Info"
 msgstr ""
 
-#: ../qml/Enablement.qml:84
+#: ../qml/Enablement.qml:83
 msgid "Enable Snaps"
 msgstr ""
 
@@ -45,38 +45,42 @@ msgstr ""
 msgid "Cancel"
 msgstr ""
 
-#: ../qml/Main.qml:162
+#: ../qml/Main.qml:169
 msgid "Checking functionality..."
 msgstr ""
 
-#: ../qml/Store.qml:31 ../qml/Store.qml:156
+#: ../qml/Store.qml:31 ../qml/Store.qml:163
 msgid "Search"
 msgstr ""
 
-#: ../qml/Store.qml:149
+#: ../qml/Store.qml:45
+msgid "Re-install support"
+msgstr ""
+
+#: ../qml/Store.qml:156
 msgid "Search for snaps:"
 msgstr ""
 
-#: ../qml/Store.qml:220
+#: ../qml/Store.qml:227
 msgid "No Snaps installed yet"
 msgstr ""
 
-#: ../qml/Store.qml:259
+#: ../qml/Store.qml:266
 msgid "Details for %1"
 msgstr ""
 
-#: ../qml/Store.qml:275
+#: ../qml/Store.qml:282
 msgid "Install"
 msgstr ""
 
-#: ../qml/Store.qml:275
+#: ../qml/Store.qml:282
 msgid "Remove"
 msgstr ""
 
-#: ../qml/Store.qml:296
+#: ../qml/Store.qml:303
 msgid "Website"
 msgstr ""
 
-#: ../qml/Store.qml:304
+#: ../qml/Store.qml:311
 msgid "Store Website"
 msgstr ""

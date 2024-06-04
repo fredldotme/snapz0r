@@ -78,7 +78,6 @@ Page {
         }
         Row {
             spacing: units.gu(1)
-            enabled: !root.featureEnabled
             anchors.horizontalCenter: parent.horizontalCenter
             Button {
                 text: i18n.tr("Enable Snaps")

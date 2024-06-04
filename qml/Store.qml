@@ -32,7 +32,7 @@ Page {
                     onTriggered: {
                         searchContextArea.visibility = !searchContextArea.visibility
                     }
-                }/*,
+                },/*
                 Action {
                     iconName: "history"
                     text: i18n.tr("Changes")
@@ -40,6 +40,13 @@ Page {
                         PopupUtils.open(popoverComponent, installedAppsList)
                     }
                 }*/
+                Action {
+                    iconName: "reload"
+                    text: i18n.tr("Re-install support")
+                    onTriggered: {
+                        root.forceReinstallSupport()
+                    }
+                }
             ]
             numberOfSlots: 1
         }
