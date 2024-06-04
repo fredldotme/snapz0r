@@ -84,12 +84,17 @@ void FeatureManager::run()
 
     // Do the thing
     m_commandRunner->sudo(QStringList{"/usr/bin/apt", "update"}, true);
-    m_commandRunner->sudo(QStringList{"/usr/bin/env", "DEBIAN_FRONTEND=noninteractive", "/usr/bin/apt", "install", "--no-install-recommends", "-y", "/opt/click.ubuntu.com/snapz0r.fredldotme/current/snapd.deb", "lomiri-polkit-agent"}, true);
-
-    m_commandRunner->sudo(QStringList{"/usr/bin/mount", "-o", "remount,ro", "/"}, true);
+    m_commandRunner->sudo(QStringList{"/usr/bin/env", "DEBIAN_FRONTEND=noninteractive", "/usr/bin/apt", "install", "--reinstall", "--no-install-recommends", "-y", "/opt/click.ubuntu.com/snapz0r.fredldotme/current/snapd.deb", "lomiri-polkit-agent"}, true);
 
     // Tweaks for improved app compatibility
     m_commandRunner->writeFile("/etc/profile.d/z-snapz0r.sh", "export QT_QPA_PLATFORM=\"ubuntumirclient;wayland-egl;xcb\"\nexport SDL_VIDEODRIVER=wayland\nexport GDK_DEBUG=gl-gles\nexport GDK_GL=gles");
+
+    // Ensure to snapd that we indeed are Ubuntu Touch
+    const QStringList appendCommand {
+        QStringLiteral("/bin/sh"), QStringLiteral("-c"),
+        QStringLiteral("grep -q VARIANT_ID= /etc/os-release || echo 'VARIANT_ID=touch' >> /etc/os-release")
+    };
+    m_commandRunner->sudo(appendCommand, true);
 
     // Enforce use of our custom snapd over the one from the Snap Store
     m_commandRunner->sudo(QStringList{"/usr/bin/mkdir", "-p", "/usr/lib/systemd/system/snapd.service.d"}, true);
@@ -101,6 +106,7 @@ void FeatureManager::run()
     m_commandRunner->sudo(QStringList{"/usr/bin/chmod", "755", "/"});
 
     // Ready for takeoff
+    m_commandRunner->sudo(QStringList{"/usr/bin/mount", "-o", "remount,ro", "/"}, true);
     m_commandRunner->sudo(QStringList{"/usr/bin/sync"}, true);
     m_commandRunner->sudo(QStringList{"/usr/sbin/reboot", "-f"}, true);
 }
