@@ -91,6 +91,12 @@ void FeatureManager::run()
     // Tweaks for improved app compatibility
     m_commandRunner->writeFile("/etc/profile.d/z-snapz0r.sh", "export QT_QPA_PLATFORM=\"ubuntumirclient;wayland-egl;xcb\"\nexport SDL_VIDEODRIVER=wayland\nexport GDK_DEBUG=gl-gles\nexport GDK_GL=gles");
 
+    // Enforce use of our custom snapd over the one from the Snap Store
+    m_commandRunner->sudo(QStringList{"/usr/bin/mkdir", "-p", "/usr/lib/systemd/system/snapd.service.d"}, true);
+    m_commandRunner->writeFile("/usr/lib/systemd/system/snapd.service.d/snapz0r.conf", "[Service]\nEnvironment=SNAP_REEXEC=0");
+    m_commandRunner->writeFile("/usr/lib/environment.d/991-snapz0r.conf", "SNAP_REEXEC=0");
+    m_commandRunner->writeFile("/etc/profile.d/z-snapz0r-pin.sh", "export SNAP_REEXEC=0");
+
     // Requirement for classically confined apps
     m_commandRunner->sudo(QStringList{"/usr/bin/chmod", "755", "/"});
 
