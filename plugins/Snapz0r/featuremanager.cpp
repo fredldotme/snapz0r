@@ -87,7 +87,7 @@ void FeatureManager::run()
     m_commandRunner->sudo(QStringList{"/usr/bin/env", "DEBIAN_FRONTEND=noninteractive", "/usr/bin/apt", "install", "--reinstall", "--no-install-recommends", "-y", "/opt/click.ubuntu.com/snapz0r.fredldotme/current/snapd.deb", "lomiri-polkit-agent"}, true);
 
     // Tweaks for improved app compatibility
-    m_commandRunner->writeFile("/etc/profile.d/z-snapz0r.sh", "export QT_QPA_PLATFORM=\"ubuntumirclient;wayland-egl;xcb\"\nexport SDL_VIDEODRIVER=wayland\nexport GDK_DEBUG=gl-gles\nexport GDK_GL=gles");
+    m_commandRunner->writeFile("/etc/profile.d/z-snapz0r.sh", "export QT_QPA_PLATFORM=\"ubuntumirclient;wayland-egl;xcb\"\nexport SDL_VIDEODRIVER=wayland\nexport GDK_DEBUG=gl-disabled\n");
 
     // Ensure to snapd that we indeed are Ubuntu Touch
     const QStringList appendCommand {
