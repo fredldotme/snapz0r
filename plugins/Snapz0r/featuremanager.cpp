@@ -74,8 +74,10 @@ void FeatureManager::run()
     m_commandRunner->sudo(QStringList{"/usr/bin/mount", "-o", "remount,rw", "/"}, true);
 
     // Temporary storage for apt
-    m_commandRunner->sudo(QStringList{"/usr/bin/mkdir", "/tmp/apt"}, true);
-    m_commandRunner->sudo(QStringList{"/usr/bin/mount", "-o", "bind", "/tmp/apt", "/var/cache/apt"}, true);
+    m_commandRunner->sudo(QStringList{"/usr/bin/mkdir", "-p", "/tmp/apt/cache"}, true);
+    m_commandRunner->sudo(QStringList{"/usr/bin/mkdir", "-p", "/tmp/apt/lib"}, true);
+    m_commandRunner->sudo(QStringList{"/usr/bin/mount", "-o", "bind", "/tmp/apt/cache", "/var/cache/apt"}, true);
+    m_commandRunner->sudo(QStringList{"/usr/bin/mount", "-o", "bind", "/tmp/apt/lib", "/var/lib/apt"}, true);
 
     // Port-dependent, these may or may not fail
     m_commandRunner->sudo(QStringList{"/usr/bin/umount", "/etc/profile.d"}, true);
