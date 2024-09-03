@@ -1,24 +1,36 @@
 #include "commandrunner.h"
 
 #include <QDebug>
+#include <QThread>
+#include <limits>
 
 CommandRunner::CommandRunner(QObject *parent) :
     QObject(parent),
-    m_process(new QProcess(this))
+    m_process(newProcess())
 {
-    connect(this->m_process, &QProcess::stateChanged, this, [=](QProcess::ProcessState state) {
+}
+
+QProcess* CommandRunner::newProcess()
+{
+    auto process = new QProcess();
+    process->moveToThread(QThread::currentThread());
+
+    connect(process, &QProcess::stateChanged, this, [=](QProcess::ProcessState state) {
         if (state == QProcess::NotRunning) {
             qDebug() << "Command stopped";
+            if (process != this->m_process)
+                process->deleteLater();
         }
-    });
-    connect(this->m_process, &QProcess::readyReadStandardError,
+    }, Qt::DirectConnection);
+    connect(process, &QProcess::readyReadStandardError,
             this, [=]() {
-        const QByteArray stdErrContent = this->m_process->readAllStandardError();
+        const QByteArray stdErrContent = process->readAllStandardError();
         qDebug() << stdErrContent;
         if (stdErrContent.contains("userpasswd")) {
             emit passwordRequested();
         }
-    });
+    }, Qt::DirectConnection);
+    return process;
 }
 
 int CommandRunner::shell(const QStringList &command, const bool waitForCompletion, QByteArray* output)
@@ -26,33 +38,37 @@ int CommandRunner::shell(const QStringList &command, const bool waitForCompletio
     QStringList cmd = QStringList{"-c", command.join(" ")};
 
     this->m_process->start("bash", cmd, QProcess::ReadWrite);
+    this->m_process->waitForStarted();
+
     if (waitForCompletion) {
-        this->m_process->waitForFinished();
+        this->m_process->waitForFinished(std::numeric_limits<int>::max());
         if (output) {
             *output = this->m_process->readAllStandardOutput();
         }
         qDebug() << this->m_process->exitCode();
         const int ret = this->m_process->exitCode();
-        this->m_process->kill();
         return ret;
     }
     return -1;
 }
 
-int CommandRunner::sudo(const QStringList &command, const bool waitForCompletion, QByteArray* output)
+int CommandRunner::sudo(const QStringList &command, const bool waitForCompletion, const bool separateProcess, QByteArray* output)
 {
     QStringList cmd = QStringList{"-S", "-p", "userpasswd"} + command;
     qDebug() << "running" << cmd.join(" ");
 
-    this->m_process->start("sudo", cmd, QProcess::ReadWrite);
+    auto process = separateProcess ? newProcess() : m_process;
+
+    process->start("sudo", cmd, QProcess::ReadWrite);
+    process->waitForStarted();
+
     if (waitForCompletion) {
-        this->m_process->waitForFinished();
+        process->waitForFinished(std::numeric_limits<int>::max());
         if (output) {
-            *output = this->m_process->readAllStandardOutput();
+            *output = process->readAllStandardOutput();
         }
-        qDebug() << this->m_process->exitCode();
-        const int ret = this->m_process->exitCode();
-        this->m_process->kill();
+        qDebug() << process->exitCode();
+        const int ret = process->exitCode();
         return ret;
     }
     return -1;
@@ -60,7 +76,7 @@ int CommandRunner::sudo(const QStringList &command, const bool waitForCompletion
 
 bool CommandRunner::sudo(const QStringList &command)
 {
-    return sudo(command, true, nullptr);
+    return sudo(command, true, false, 	nullptr);
 }
 
 QByteArray CommandRunner::readFile(const QString &absolutePath)

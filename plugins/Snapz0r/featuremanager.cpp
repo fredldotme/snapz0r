@@ -37,7 +37,7 @@ FeatureManager::FeatureManager()
 bool FeatureManager::recheckSupport()
 {
     QByteArray output;
-    m_commandRunner->shell(QStringList{"/usr/bin/zcat", "/proc/config.gz"}, true, &output);
+    m_commandRunner->sudo(QStringList{"/usr/bin/zcat", "/proc/config.gz"}, true, false, &output);
 
     m_supported = output.contains("CONFIG_SQUASHFS") && output.contains("CONFIG_SQUASHFS_XZ") &&
                   output.contains("CONFIG_SQUASHFS_LZO");
@@ -71,6 +71,10 @@ bool FeatureManager::enable()
 
 void FeatureManager::run()
 {
+    // Keep display on (blocks so run with its own QProcess)
+    m_commandRunner->sudo(QStringList{"/usr/sbin/repowerd-cli", "display", "on"}, false, true);
+
+    // About to change the rootfs contents
     m_commandRunner->sudo(QStringList{"/usr/bin/mount", "-o", "remount,rw", "/"}, true);
 
     // Temporary storage for apt
