@@ -35,6 +35,7 @@ public:
     Q_INVOKABLE bool recheckSupport();
     Q_INVOKABLE bool enabled();
     Q_INVOKABLE bool enable();
+    Q_INVOKABLE bool isUnsupported();
 
 private:
     void run();

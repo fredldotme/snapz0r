@@ -34,6 +34,27 @@ FeatureManager::FeatureManager()
     QObject::connect(&m_thread, &QThread::started, this, &FeatureManager::run, Qt::DirectConnection);
 }
 
+bool FeatureManager::isUnsupported()
+{
+    const auto needle = QByteArrayLiteral("VERSION_CODENAME=");
+    QFile file(QStringLiteral("/etc/os-release"));
+
+    if (!file.open(QFile::ReadOnly | QFile::Text)) {
+        return true;
+    }
+
+    while (!file.atEnd()) {
+        const auto content = file.readLine().trimmed();
+        if (content.startsWith(needle)) {
+            const auto codename = content.mid(needle.length());
+            qDebug() << "Codename:" << codename;
+            return (codename != QStringLiteral("focal"));
+        }
+    }
+
+    return false;
+}
+
 bool FeatureManager::recheckSupport()
 {
     QByteArray output;

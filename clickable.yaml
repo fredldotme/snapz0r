@@ -8,3 +8,5 @@ install_qml:
 - /usr/lib/${ARCH_TRIPLET}/qt5/qml/Snapd
 install_lib:
 - /usr/lib/${ARCH_TRIPLET}/libsnapd-qt*.so*
+- /usr/lib/${ARCH_TRIPLET}/libsnapd-glib*.so*
+- /usr/lib/${ARCH_TRIPLET}/libsoup-2.4.so*

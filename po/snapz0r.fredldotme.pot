@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: snapz0r.fredldotme\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-06-28 21:39+0000\n"
+"POT-Creation-Date: 2025-09-02 10:18+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,11 +17,12 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: ../qml/Enablement.qml:13 ../qml/Store.qml:20 snapz0r.desktop.in.h:1
+#: ../qml/Enablement.qml:13 ../qml/Store.qml:20 ../qml/Unsupported.qml:13
+#: snapz0r.desktop.in.h:1
 msgid "Snapz0r"
 msgstr ""
 
-#: ../qml/Enablement.qml:23
+#: ../qml/Enablement.qml:23 ../qml/Unsupported.qml:23
 msgid "Info"
 msgstr ""
 
@@ -45,7 +46,7 @@ msgstr ""
 msgid "Cancel"
 msgstr ""
 
-#: ../qml/Main.qml:169
+#: ../qml/Main.qml:178
 msgid "Checking functionality..."
 msgstr ""
 

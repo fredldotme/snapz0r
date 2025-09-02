@@ -74,6 +74,13 @@ MainView {
     }
 
     Component {
+        id: unsupportedComponent
+        Unsupported {
+            id: unsupported
+        }
+    }
+
+    Component {
         id: dialog
 
         Dialog {
@@ -125,7 +132,9 @@ MainView {
         if (!checked)
             return;
 
-        if (featureEnabled) {
+        if (FeatureManager.isUnsupported()) {
+            mainLayout.primaryPage = unsupportedComponent.createObject(mainLayout)
+        } else if (featureEnabled) {
             mainLayout.primaryPage = storeComponent.createObject(mainLayout)
         } else {
             mainLayout.primaryPage = enablementComponent.createObject(mainLayout)

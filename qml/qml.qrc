@@ -4,5 +4,6 @@
         <file>Enablement.qml</file>
         <file>Store.qml</file>
         <file>LoginDialog.qml</file>
+        <file>Unsupported.qml</file>
     </qresource>
 </RCC>
